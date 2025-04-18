@@ -2,12 +2,14 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
 
 use App\Http\Controllers\ShortUrlController;
+
+Route::view('/', 'app');
 
 Route::post('/shorten', [ShortUrlController::class, 'store']);
 
