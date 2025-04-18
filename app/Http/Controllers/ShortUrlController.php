@@ -29,7 +29,6 @@ class ShortUrlController extends Controller
         return response()->json($short, 201);
     }
 
-    // GET /shorten/{code}
     public function show($code)
     {
         $short = ShortUrl::where('short_code', $code)->first();
@@ -37,13 +36,11 @@ class ShortUrlController extends Controller
             return response()->json(['error'=>'Short URL not found'], 404);
         }
 
-        // increment on retrieve
         $short->increment('access_count');
 
         return response()->json($short, 200);
     }
 
-    // PUT /shorten/{code}
     public function update(Request $request, $code)
     {
         $v = Validator::make($request->all(), ['url'=>'required|url']);
@@ -60,7 +57,6 @@ class ShortUrlController extends Controller
         return response()->json($short, 200);
     }
 
-    // DELETE /shorten/{code}
     public function destroy($code)
     {
         $short = ShortUrl::where('short_code', $code)->first();
@@ -72,7 +68,6 @@ class ShortUrlController extends Controller
         return response()->json(null, 204);
     }
 
-    // GET /shorten/{code}/stats
     public function stats($code)
     {
         $short = ShortUrl::where('short_code', $code)->first();
