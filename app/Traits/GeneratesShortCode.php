@@ -1,6 +1,9 @@
 <?php
 
-namespace App;
+namespace App\Traits;
+
+use Illuminate\Support\Str;
+use App\Models\ShortUrl;
 
 trait GeneratesShortCode
 {
