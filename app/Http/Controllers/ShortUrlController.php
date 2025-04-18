@@ -11,6 +11,8 @@ use App\Traits\GeneratesShortCode;
 
 class ShortUrlController extends Controller
 {
+
+    use GeneratesShortCode;
     public function store(Request $request)
     {
         $v = Validator::make($request->all(), ['url'=>'required|url']);
