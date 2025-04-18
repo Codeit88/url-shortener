@@ -11,75 +11,75 @@ use App\Traits\GeneratesShortCode;
 
 class ShortUrlController extends Controller
 {
-
+    
     use GeneratesShortCode;
+
     public function store(Request $request)
     {
         $v = Validator::make($request->all(), ['url'=>'required|url']);
-        if ($v->fails()) return response()->json(['errors'=>$v->errors()],400);
-        $su = ShortUrl::create(['url'=>$request->url,'short_code'=>$this->generateUniqueCode()]);
-        return response()->json($su,201);
+        if ($v->fails()) {
+            return response()->json(['errors'=>$v->errors()], 400);
+        }
+
+        $short = ShortUrl::create([
+            'url'        => $request->url,
+            'short_code' => $this->generateUniqueCode()
+        ]);
+
+        return response()->json($short, 201);
     }
 
-    // API: retrieve & count
+    // GET /shorten/{code}
     public function show($code)
     {
-        $su = ShortUrl::where('short_code',$code)->first();
-        if (! $su) return response()->json(['error'=>'Not found'],404);
-        $su->increment('access_count');
-        return response()->json($su,200);
+        $short = ShortUrl::where('short_code', $code)->first();
+        if (! $short) {
+            return response()->json(['error'=>'Short URL not found'], 404);
+        }
+
+        // increment on retrieve
+        $short->increment('access_count');
+
+        return response()->json($short, 200);
     }
 
-    // API: update
+    // PUT /shorten/{code}
     public function update(Request $request, $code)
     {
         $v = Validator::make($request->all(), ['url'=>'required|url']);
-        if ($v->fails()) return response()->json(['errors'=>$v->errors()],400);
-        $su = ShortUrl::where('short_code',$code)->first();
-        if (! $su) return response()->json(['error'=>'Not found'],404);
-        $su->update(['url'=>$request->url]);
-        return response()->json($su,200);
+        if ($v->fails()) {
+            return response()->json(['errors'=>$v->errors()], 400);
+        }
+
+        $short = ShortUrl::where('short_code', $code)->first();
+        if (! $short) {
+            return response()->json(['error'=>'Short URL not found'], 404);
+        }
+
+        $short->update(['url'=>$request->url]);
+        return response()->json($short, 200);
     }
 
-    // API: delete
+    // DELETE /shorten/{code}
     public function destroy($code)
     {
-        $su = ShortUrl::where('short_code',$code)->first();
-        if (! $su) return response()->json(['error'=>'Not found'],404);
-        $su->delete();
-        return response()->json(null,204);
+        $short = ShortUrl::where('short_code', $code)->first();
+        if (! $short) {
+            return response()->json(['error'=>'Short URL not found'], 404);
+        }
+
+        $short->delete();
+        return response()->json(null, 204);
     }
 
-    // API: stats (no increment)
+    // GET /shorten/{code}/stats
     public function stats($code)
     {
-        $su = ShortUrl::where('short_code',$code)->first();
-        if (! $su) return response()->json(['error'=>'Not found'],404);
-        return response()->json($su,200);
-    }
+        $short = ShortUrl::where('short_code', $code)->first();
+        if (! $short) {
+            return response()->json(['error'=>'Short URL not found'], 404);
+        }
 
-    // WEB: store (redirect back)
-    public function storeWeb(Request $request)
-    {
-        $request->validate(['url'=>'required|url']);
-        $su = ShortUrl::create(['url'=>$request->url,'short_code'=>$this->generateUniqueCode()]);
-        return redirect('/')->with('short',$su);
-    }
-
-    // WEB: redirect
-    public function redirect($code)
-    {
-        $su = ShortUrl::where('short_code',$code)->first();
-        if (! $su) return redirect('/')->with('error','Not found');
-        $su->increment('access_count');
-        return Redirect::to($su->url);
-    }
-
-    // WEB: stats view
-    public function statsWeb($code)
-    {
-        $su = ShortUrl::where('short_code',$code)->first();
-        if (! $su) return redirect('/')->with('error','Not found');
-        return view('stats',compact('su'));
+        return response()->json($short, 200);
     }
 }
